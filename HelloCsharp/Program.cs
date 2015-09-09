@@ -44,6 +44,7 @@ namespace HelloCsharp
 			Console.WriteLine(unboxID.ToString());
 
 			///foreach循环中无法改变集合对象，会直接编译器报错
+			/// 在Java中亦是，只是不会编译报错
 			String[] stringArray = new String[5];
 			for (int i=0;i<stringArray.Length;i++)
 			{
@@ -52,7 +53,7 @@ namespace HelloCsharp
 			}
 			foreach (String s in stringArray)
 			{
-			///	s = "hh";///语法报错
+				;///	s = "hh";///语法报错
 			}
 
 			//C#3.0初始化器
@@ -61,7 +62,7 @@ namespace HelloCsharp
 			person.id = 2;
 			person.name = "hh";
 			Console.WriteLine(person.name);
-			//等同于
+			//等同于使用初始化器如下
 			Person person2 = new Person { id = 2, name = "hh" };
 			Console.WriteLine(person2.name);
 
@@ -79,7 +80,9 @@ namespace HelloCsharp
 			//此时观察personFromStudent的属性，已经没有school这一项了，说明as操作同时进行了类型转换装箱操作
 			//Console.WriteLine("personFromStudent {0} a Student", personFromStudent is Student?"is":"is not");
 
-
+			//Babe类用于演示C#6.0自动实现属性的初始化器
+			Baby babe1 = new Baby { name="sss"};
+			Console.WriteLine(babe1.bornTime);
 
 		}
 		[Flags]
@@ -111,8 +114,8 @@ namespace HelloCsharp
         }
         public static void ModifyNewCoord(ref CoordinateClass c)
         {
-            c.x = 90;
-            c.y = 50;
+            c.x = 99;
+            c.y = 59;
         }
     }
     public struct Coordinate{
@@ -125,11 +128,11 @@ namespace HelloCsharp
         public int y;
     }
 	/// <summary>
-	/// C#3.0初始化器
+	/// C#3.0自动实现属性
 	/// public int id { get; set; }相当于
 	/// private int id;
-	/// int getId(){return id;}
-	/// int setId(int id){this.id=id;}
+	/// public int getId(){return id;}
+	/// public int setId(int id){this.id=id;}
 	/// </summary>
 	class Person {
 		public int id { get; set; }
@@ -199,10 +202,47 @@ namespace HelloCsharp
 			Console.WriteLine(result);
 		}
 		//静态类不能包含protected成员，因为静态类不能作为基类，protected无意义
-	/*	protected static int mul(int a,int b)
+		//以下代码报错“静态类不能包含保护成员”
+		/*protected static int mul(int a,int b)
 		{
 			return a* b;
 		}*/
 	}
-	
+
+	/// <summary>
+	/// C#6.0自动实现属性的初始化
+	/// 在C#6.0之前，自动实现属性和初始化器是矛盾的。
+	/// 因为自动实现属性后，若想在对象创建时就被初始化，必须重写构造方法，因为覆盖了默认构造方法，因此无法使用初始化器。
+	/// 而C#6.0允许自动实现属性时直接初始化，无需重写构造方法
+	/// </summary>
+	class Baby {
+		public DateTime bornTime { get; } = DateTime.UtcNow;
+		public String name { get; set; }
+	}
+	/*
+	///C#6.0非正式版引入了主构造器特性，可以在自动实现属性初始化器的初始化值由主构造器传入
+	///然而该特性已经被移除，因此以下代码会报错
+	class Baby2(DateTime datetime)
+	{
+		public DateTime bornTime { get; } = datetime;
+		public String name { get; set; }
+	}*/
+
+	/// <summary>
+	/// 构造函数不会被继承
+	/// 没有构造函数的类编译器会生成一个默认无参构造函数，该函数调用基类的默认构造函数
+	/// 因此以下代码会报错
+	/// </summary>
+	public class A { 
+		public A(int x) {
+			this.x = x;
+		}
+		private int x;
+	}
+	/*
+	///父类没有默认构造方法，会出错
+	public class B: A {
+	}
+	*/
+
 }
